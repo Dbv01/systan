@@ -1641,35 +1641,6 @@
 
     <!-- Скрипты -->
     <script>
-        // Инициализация приложения
-        document.addEventListener('DOMContentLoaded', function() {
-            // Инициализация иконок
-            lucide.createIcons();
-            
-            // Инициализация Mermaid
-            mermaid.initialize({
-                startOnLoad: false,
-                theme: 'default',
-                flowchart: { useMaxWidth: false },
-                securityLevel: 'loose'
-            });
-            
-            // Инициализация состояния приложения
-            initializeApp();
-            
-            // Настройка обработчиков событий
-            setupEventListeners();
-            
-            // Загрузка начальных данных
-            loadSampleData();
-            
-            // Обновление статистики
-            updateDashboardStats();
-            
-            // Показываем дашборд по умолчанию
-            showTab('dashboard');
-        });
-
         // Глобальные переменные
         let currentProject = {
             name: 'Новый проект',
@@ -2080,18 +2051,47 @@ ID: TC-[ID]
         };
 
         // Инициализация приложения
-        function initializeApp() {
-            // Загрузка данных из localStorage
-            loadFromLocalStorage();
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация иконок
+            if (window.lucide && window.lucide.createIcons) {
+                lucide.createIcons();
+            }
             
-            // Инициализация интерфейса
-            initializeUI();
+            // Инициализация Mermaid
+            if (window.mermaid) {
+                mermaid.initialize({
+                    startOnLoad: false,
+                    theme: 'default',
+                    flowchart: { useMaxWidth: false },
+                    securityLevel: 'loose'
+                });
+            }
+            
+            // Инициализация состояния приложения
+            initializeApp();
+            
+            // Настройка обработчиков событий
+            setupEventListeners();
             
             // Загрузка начальных данных
             loadSampleData();
             
             // Обновление статистики
             updateDashboardStats();
+            
+            // Показываем дашборд по умолчанию
+            showTab('dashboard');
+            
+            console.log('Приложение инициализировано');
+        });
+
+        // Основные функции приложения
+        function initializeApp() {
+            // Загрузка данных из localStorage
+            loadFromLocalStorage();
+            
+            // Инициализация интерфейса
+            initializeUI();
         }
 
         function initializeUI() {
@@ -2134,18 +2134,37 @@ ID: TC-[ID]
                 });
             });
             
-            document.getElementById('add-custom-template').addEventListener('click', addCustomTemplate);
-            document.getElementById('save-template').addEventListener('click', saveTemplate);
-            document.getElementById('copy-template').addEventListener('click', copyTemplate);
-            document.getElementById('clear-template').addEventListener('click', clearTemplate);
-            document.getElementById('export-template').addEventListener('click', exportTemplate);
+            // Кнопки шаблонов
+            const addTemplateBtn = document.getElementById('add-custom-template');
+            if (addTemplateBtn) addTemplateBtn.addEventListener('click', addCustomTemplate);
+            
+            const saveTemplateBtn = document.getElementById('save-template');
+            if (saveTemplateBtn) saveTemplateBtn.addEventListener('click', saveTemplate);
+            
+            const copyTemplateBtn = document.getElementById('copy-template');
+            if (copyTemplateBtn) copyTemplateBtn.addEventListener('click', copyTemplate);
+            
+            const clearTemplateBtn = document.getElementById('clear-template');
+            if (clearTemplateBtn) clearTemplateBtn.addEventListener('click', clearTemplate);
+            
+            const exportTemplateBtn = document.getElementById('export-template');
+            if (exportTemplateBtn) exportTemplateBtn.addEventListener('click', exportTemplate);
             
             // Диаграммы
-            document.getElementById('new-diagram').addEventListener('click', createNewDiagram);
-            document.getElementById('save-diagram').addEventListener('click', saveDiagram);
-            document.getElementById('render-diagram').addEventListener('click', renderDiagram);
-            document.getElementById('export-diagrams').addEventListener('click', exportAllDiagrams);
-            document.getElementById('export-png').addEventListener('click', exportDiagramAsPNG);
+            const newDiagramBtn = document.getElementById('new-diagram');
+            if (newDiagramBtn) newDiagramBtn.addEventListener('click', createNewDiagram);
+            
+            const saveDiagramBtn = document.getElementById('save-diagram');
+            if (saveDiagramBtn) saveDiagramBtn.addEventListener('click', saveDiagram);
+            
+            const renderDiagramBtn = document.getElementById('render-diagram');
+            if (renderDiagramBtn) renderDiagramBtn.addEventListener('click', renderDiagram);
+            
+            const exportDiagramsBtn = document.getElementById('export-diagrams');
+            if (exportDiagramsBtn) exportDiagramsBtn.addEventListener('click', exportAllDiagrams);
+            
+            const exportPngBtn = document.getElementById('export-png');
+            if (exportPngBtn) exportPngBtn.addEventListener('click', exportDiagramAsPNG);
             
             document.querySelectorAll('[data-example]').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -2155,25 +2174,37 @@ ID: TC-[ID]
             });
             
             // Требования
-            document.getElementById('add-requirement').addEventListener('click', addRequirement);
-            document.getElementById('filter-status').addEventListener('change', filterRequirements);
-            document.getElementById('filter-priority').addEventListener('change', filterRequirements);
-            document.getElementById('filter-type').addEventListener('change', filterRequirements);
-            document.getElementById('search-req').addEventListener('input', searchRequirements);
-            document.getElementById('import-req').addEventListener('click', importRequirements);
-            document.getElementById('export-req').addEventListener('click', exportRequirements);
+            const addRequirementBtn = document.getElementById('add-requirement');
+            if (addRequirementBtn) addRequirementBtn.addEventListener('click', addRequirement);
+            
+            const importReqBtn = document.getElementById('import-req');
+            if (importReqBtn) importReqBtn.addEventListener('click', importRequirements);
+            
+            const exportReqBtn = document.getElementById('export-req');
+            if (exportReqBtn) exportReqBtn.addEventListener('click', exportRequirements);
             
             // Тестирование
-            document.getElementById('new-test-case').addEventListener('click', addTestCase);
-            document.getElementById('generate-tests').addEventListener('click', generateTestsFromRequirements);
-            document.getElementById('add-test-step').addEventListener('click', addTestStep);
-            document.getElementById('filter-test-status').addEventListener('change', filterTestCases);
+            const newTestCaseBtn = document.getElementById('new-test-case');
+            if (newTestCaseBtn) newTestCaseBtn.addEventListener('click', addTestCase);
+            
+            const generateTestsBtn = document.getElementById('generate-tests');
+            if (generateTestsBtn) generateTestsBtn.addEventListener('click', generateTestsFromRequirements);
+            
+            const addTestStepBtn = document.getElementById('add-test-step');
+            if (addTestStepBtn) addTestStepBtn.addEventListener('click', addTestStep);
             
             // Инструменты
-            document.getElementById('validate-json').addEventListener('click', validateJSON);
-            document.getElementById('format-json').addEventListener('click', formatJSON);
-            document.getElementById('minify-json').addEventListener('click', minifyJSON);
-            document.getElementById('convert-json-yaml').addEventListener('click', convertJsonToYaml);
+            const validateJsonBtn = document.getElementById('validate-json');
+            if (validateJsonBtn) validateJsonBtn.addEventListener('click', validateJSON);
+            
+            const formatJsonBtn = document.getElementById('format-json');
+            if (formatJsonBtn) formatJsonBtn.addEventListener('click', formatJSON);
+            
+            const minifyJsonBtn = document.getElementById('minify-json');
+            if (minifyJsonBtn) minifyJsonBtn.addEventListener('click', minifyJSON);
+            
+            const convertJsonYamlBtn = document.getElementById('convert-json-yaml');
+            if (convertJsonYamlBtn) convertJsonYamlBtn.addEventListener('click', convertJsonToYaml);
             
             document.querySelectorAll('[data-case]').forEach(btn => {
                 btn.addEventListener('click', function() {
@@ -2182,56 +2213,91 @@ ID: TC-[ID]
                 });
             });
             
-            document.getElementById('generate-email').addEventListener('click', generateEmail);
-            document.getElementById('generate-phone').addEventListener('click', generatePhone);
-            document.getElementById('generate-name').addEventListener('click', generateName);
+            const generateEmailBtn = document.getElementById('generate-email');
+            if (generateEmailBtn) generateEmailBtn.addEventListener('click', generateEmail);
+            
+            const generatePhoneBtn = document.getElementById('generate-phone');
+            if (generatePhoneBtn) generatePhoneBtn.addEventListener('click', generatePhone);
+            
+            const generateNameBtn = document.getElementById('generate-name');
+            if (generateNameBtn) generateNameBtn.addEventListener('click', generateName);
             
             // Чек-листы
             document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
                 checkbox.addEventListener('change', updateChecklistProgress);
             });
             
-            document.getElementById('save-checklists').addEventListener('click', saveAllChecklists);
-            document.getElementById('generate-report').addEventListener('click', generateQualityReport);
+            const saveChecklistsBtn = document.getElementById('save-checklists');
+            if (saveChecklistsBtn) saveChecklistsBtn.addEventListener('click', saveAllChecklists);
+            
+            const generateReportBtn = document.getElementById('generate-report');
+            if (generateReportBtn) generateReportBtn.addEventListener('click', generateQualityReport);
             
             // Управление проектом
-            document.getElementById('new-project').addEventListener('click', createNewProject);
-            document.getElementById('export-all').addEventListener('click', exportAllData);
-            document.getElementById('import-all').addEventListener('click', importAllData);
-            document.getElementById('settings').addEventListener('click', showSettings);
-            document.getElementById('add-task').addEventListener('click', addTask);
+            const newProjectBtn = document.getElementById('new-project');
+            if (newProjectBtn) newProjectBtn.addEventListener('click', createNewProject);
+            
+            const exportAllBtn = document.getElementById('export-all');
+            if (exportAllBtn) exportAllBtn.addEventListener('click', exportAllData);
+            
+            const importAllBtn = document.getElementById('import-all');
+            if (importAllBtn) importAllBtn.addEventListener('click', importAllData);
+            
+            const settingsBtn = document.getElementById('settings');
+            if (settingsBtn) settingsBtn.addEventListener('click', showSettings);
+            
+            const addTaskBtn = document.getElementById('add-task');
+            if (addTaskBtn) addTaskBtn.addEventListener('click', addTask);
             
             // API
-            document.getElementById('new-endpoint').addEventListener('click', addApiEndpoint);
-            document.getElementById('import-swagger').addEventListener('click', importSwagger);
-            document.getElementById('export-openapi').addEventListener('click', exportOpenAPI);
-            document.getElementById('add-param').addEventListener('click', addApiParam);
+            const newEndpointBtn = document.getElementById('new-endpoint');
+            if (newEndpointBtn) newEndpointBtn.addEventListener('click', addApiEndpoint);
+            
+            const importSwaggerBtn = document.getElementById('import-swagger');
+            if (importSwaggerBtn) importSwaggerBtn.addEventListener('click', importSwagger);
+            
+            const exportOpenapiBtn = document.getElementById('export-openapi');
+            if (exportOpenapiBtn) exportOpenapiBtn.addEventListener('click', exportOpenAPI);
             
             // Процессы
-            document.getElementById('new-process').addEventListener('click', addProcess);
-            document.getElementById('analyze-process').addEventListener('click', analyzeProcess);
+            const newProcessBtn = document.getElementById('new-process');
+            if (newProcessBtn) newProcessBtn.addEventListener('click', addProcess);
+            
+            const analyzeProcessBtn = document.getElementById('analyze-process');
+            if (analyzeProcessBtn) analyzeProcessBtn.addEventListener('click', analyzeProcess);
             
             // Модели данных
-            document.getElementById('new-model').addEventListener('click', addDataModel);
-            document.getElementById('generate-sql').addEventListener('click', generateSQL);
-            document.getElementById('add-entity').addEventListener('click', addEntity);
-            document.getElementById('add-attribute').addEventListener('click', addAttribute);
+            const newModelBtn = document.getElementById('new-model');
+            if (newModelBtn) newModelBtn.addEventListener('click', addDataModel);
             
-            // Аналитика
-            document.querySelectorAll('.matrix-cell').forEach(cell => {
-                cell.addEventListener('click', function() {
-                    const x = this.getAttribute('data-x');
-                    const y = this.getAttribute('data-y');
-                    addRiskToMatrix(x, y);
-                });
-            });
+            const generateSqlBtn = document.getElementById('generate-sql');
+            if (generateSqlBtn) generateSqlBtn.addEventListener('click', generateSQL);
             
             // Трассируемость
-            document.getElementById('auto-trace').addEventListener('click', autoTraceRequirements);
-            document.getElementById('export-trace').addEventListener('click', exportTraceabilityMatrix);
+            const autoTraceBtn = document.getElementById('auto-trace');
+            if (autoTraceBtn) autoTraceBtn.addEventListener('click', autoTraceRequirements);
             
-            // Автосохранение
-            setupAutoSave();
+            const exportTraceBtn = document.getElementById('export-trace');
+            if (exportTraceBtn) exportTraceBtn.addEventListener('click', exportTraceabilityMatrix);
+            
+            // Обработчик для редактора шаблонов
+            const templateEditor = document.getElementById('template-editor');
+            if (templateEditor) {
+                templateEditor.addEventListener('input', updateTemplateCharCount);
+            }
+            
+            // Обработчик для редактора диаграмм
+            const mermaidEditor = document.getElementById('mermaid-editor');
+            if (mermaidEditor) {
+                mermaidEditor.addEventListener('input', function() {
+                    clearTimeout(window.diagramSaveTimeout);
+                    window.diagramSaveTimeout = setTimeout(() => {
+                        renderDiagram();
+                    }, 1000);
+                });
+            }
+            
+            console.log('Обработчики событий установлены');
         }
 
         // Функции для работы с вкладками
@@ -2251,7 +2317,10 @@ ID: TC-[ID]
                     btn.classList.remove('tab-active');
                 });
                 
-                document.querySelector(`[data-tab="${tabId}"]`).classList.add('tab-active');
+                const activeBtn = document.querySelector(`[data-tab="${tabId}"]`);
+                if (activeBtn) {
+                    activeBtn.classList.add('tab-active');
+                }
                 
                 // Специальная обработка для некоторых вкладок
                 if (tabId === 'diagrams') {
@@ -2330,6 +2399,8 @@ ID: TC-[ID]
         // Шаблоны
         function renderTemplatesGrid() {
             const grid = document.getElementById('templates-grid');
+            if (!grid) return;
+            
             grid.innerHTML = '';
             
             for (const [key, template] of Object.entries(templates)) {
@@ -2351,8 +2422,11 @@ ID: TC-[ID]
 
         function loadTemplate(templateId) {
             if (templates[templateId]) {
-                document.getElementById('template-editor').value = templates[templateId].content;
-                updateTemplateCharCount();
+                const editor = document.getElementById('template-editor');
+                if (editor) {
+                    editor.value = templates[templateId].content;
+                    updateTemplateCharCount();
+                }
             }
         }
 
@@ -2361,9 +2435,13 @@ ID: TC-[ID]
                 btn.className = 'category-btn w-full text-left p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition';
             });
             
-            document.querySelector(`[data-category="${category}"]`).className = 'category-btn w-full text-left p-3 rounded-lg bg-sky-600 text-white';
+            const activeBtn = document.querySelector(`[data-category="${category}"]`);
+            if (activeBtn) {
+                activeBtn.className = 'category-btn w-full text-left p-3 rounded-lg bg-sky-600 text-white';
+            }
             
             // Здесь можно реализовать фильтрацию шаблонов по категории
+            showNotification(`Фильтр: ${category === 'all' ? 'Все шаблоны' : category}`, 'info');
         }
 
         function addCustomTemplate() {
@@ -2371,28 +2449,40 @@ ID: TC-[ID]
         }
 
         function saveTemplate() {
-            const content = document.getElementById('template-editor').value;
+            const editor = document.getElementById('template-editor');
+            if (!editor) return;
+            
+            const content = editor.value;
             localStorage.setItem('currentTemplate', content);
             showNotification('Шаблон сохранен', 'success');
             updateLastSaveTime();
         }
 
         function copyTemplate() {
-            const content = document.getElementById('template-editor').value;
+            const editor = document.getElementById('template-editor');
+            if (!editor) return;
+            
+            const content = editor.value;
             navigator.clipboard.writeText(content)
                 .then(() => showNotification('Шаблон скопирован в буфер обмена', 'success'))
                 .catch(err => showNotification('Ошибка копирования: ' + err, 'error'));
         }
 
         function clearTemplate() {
+            const editor = document.getElementById('template-editor');
+            if (!editor) return;
+            
             if (confirm('Очистить редактор шаблонов?')) {
-                document.getElementById('template-editor').value = '';
+                editor.value = '';
                 showNotification('Редактор очищен', 'info');
             }
         }
 
         function exportTemplate() {
-            const content = document.getElementById('template-editor').value;
+            const editor = document.getElementById('template-editor');
+            if (!editor) return;
+            
+            const content = editor.value;
             const blob = new Blob([content], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -2404,13 +2494,21 @@ ID: TC-[ID]
         }
 
         function updateTemplateCharCount() {
-            const content = document.getElementById('template-editor').value;
-            document.getElementById('template-char-count').textContent = `${content.length} символов`;
+            const editor = document.getElementById('template-editor');
+            if (!editor) return;
+            
+            const content = editor.value;
+            const charCount = document.getElementById('template-char-count');
+            if (charCount) {
+                charCount.textContent = `${content.length} символов`;
+            }
         }
 
         // Диаграммы
         function renderDiagramsList() {
             const list = document.getElementById('diagrams-list');
+            if (!list) return;
+            
             list.innerHTML = '';
             
             currentProject.diagrams.forEach(diagram => {
@@ -2438,7 +2536,10 @@ ID: TC-[ID]
                 list.appendChild(diagramCard);
             });
             
-            lucide.createIcons();
+            // Обновить иконки
+            if (window.lucide && window.lucide.createIcons) {
+                lucide.createIcons();
+            }
         }
 
         function createNewDiagram() {
@@ -2459,18 +2560,27 @@ ID: TC-[ID]
         function loadDiagram(diagramId) {
             const diagram = currentProject.diagrams.find(d => d.id === diagramId);
             if (diagram) {
-                document.getElementById('mermaid-editor').value = diagram.code;
-                document.getElementById('diagram-title').value = diagram.title;
+                const editor = document.getElementById('mermaid-editor');
+                const titleInput = document.getElementById('diagram-title');
+                
+                if (editor) editor.value = diagram.code;
+                if (titleInput) titleInput.value = diagram.title;
+                
                 renderDiagram();
             }
         }
 
         function saveDiagram() {
-            const title = document.getElementById('diagram-title').value || 'Без названия';
-            const code = document.getElementById('mermaid-editor').value;
+            const titleInput = document.getElementById('diagram-title');
+            const editor = document.getElementById('mermaid-editor');
+            
+            if (!titleInput || !editor) return;
+            
+            const title = titleInput.value || 'Без названия';
+            const code = editor.value;
             
             // Обновляем текущую диаграмму или создаем новую
-            const currentTitle = document.getElementById('diagram-title').value;
+            const currentTitle = titleInput.value;
             const existingDiagram = currentProject.diagrams.find(d => d.title === currentTitle);
             
             if (existingDiagram) {
@@ -2492,8 +2602,12 @@ ID: TC-[ID]
         }
 
         function renderDiagram() {
-            const code = document.getElementById('mermaid-editor').value;
+            const editor = document.getElementById('mermaid-editor');
             const preview = document.getElementById('diagram-preview');
+            
+            if (!editor || !preview) return;
+            
+            const code = editor.value;
             
             if (!code.trim()) {
                 preview.innerHTML = '<p class="text-slate-500 text-center">Диаграмма появится здесь</p>';
@@ -2507,7 +2621,9 @@ ID: TC-[ID]
                 mermaidDiv.textContent = code;
                 preview.appendChild(mermaidDiv);
                 
-                mermaid.init({}, mermaidDiv);
+                if (window.mermaid) {
+                    mermaid.init({}, mermaidDiv);
+                }
             } catch (error) {
                 preview.innerHTML = `
                     <div class="p-4 text-red-400">
@@ -2520,9 +2636,12 @@ ID: TC-[ID]
 
         function loadMermaidExample(example) {
             if (mermaidExamples[example]) {
-                document.getElementById('mermaid-editor').value = mermaidExamples[example];
-                renderDiagram();
-                showNotification('Пример загружен', 'success');
+                const editor = document.getElementById('mermaid-editor');
+                if (editor) {
+                    editor.value = mermaidExamples[example];
+                    renderDiagram();
+                    showNotification('Пример загружен', 'success');
+                }
             }
         }
 
@@ -2554,6 +2673,8 @@ ID: TC-[ID]
         // Требования
         function renderRequirementsList() {
             const list = document.getElementById('requirements-list');
+            if (!list) return;
+            
             list.innerHTML = '';
             
             currentProject.requirements.forEach(req => {
@@ -2620,7 +2741,9 @@ ID: TC-[ID]
             });
             
             // Обновить иконки
-            lucide.createIcons();
+            if (window.lucide && window.lucide.createIcons) {
+                lucide.createIcons();
+            }
             
             // Навесить обработчики событий
             document.querySelectorAll('.edit-requirement').forEach(btn => {
@@ -2672,41 +2795,13 @@ ID: TC-[ID]
             }
         }
 
-        function filterRequirements() {
-            const status = document.getElementById('filter-status').value;
-            const priority = document.getElementById('filter-priority').value;
-            const type = document.getElementById('filter-type').value;
-            
-            // Здесь можно реализовать фильтрацию
-            showNotification('Фильтрация применяется', 'info');
-        }
-
-        function searchRequirements() {
-            const query = document.getElementById('search-req').value.toLowerCase();
-            // Здесь можно реализовать поиск
-        }
-
-        function importRequirements() {
-            showNotification('Импорт требований в разработке', 'info');
-        }
-
-        function exportRequirements() {
-            const data = JSON.stringify(currentProject.requirements, null, 2);
-            const blob = new Blob([data], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'requirements-export.json';
-            a.click();
-            URL.revokeObjectURL(url);
-            showNotification('Требования экспортированы', 'success');
-        }
-
         function updateMoSCoWLists() {
             const mustList = document.getElementById('must-have-list');
             const shouldList = document.getElementById('should-have-list');
             const couldList = document.getElementById('could-have-list');
             const wontList = document.getElementById('wont-have-list');
+            
+            if (!mustList || !shouldList || !couldList || !wontList) return;
             
             mustList.innerHTML = '';
             shouldList.innerHTML = '';
@@ -2738,6 +2833,8 @@ ID: TC-[ID]
         // Тестирование
         function renderTestCasesList() {
             const list = document.getElementById('test-cases-list');
+            if (!list) return;
+            
             list.innerHTML = '';
             
             currentProject.testCases.forEach(test => {
@@ -2790,31 +2887,35 @@ ID: TC-[ID]
         function loadTestCase(testId) {
             const test = currentProject.testCases.find(t => t.id === testId);
             if (test) {
-                document.getElementById('test-id').value = test.id;
-                document.getElementById('test-title').value = test.title;
-                document.getElementById('test-priority').value = test.priority;
+                const testIdInput = document.getElementById('test-id');
+                const testTitleInput = document.getElementById('test-title');
+                const testPrioritySelect = document.getElementById('test-priority');
+                
+                if (testIdInput) testIdInput.value = test.id;
+                if (testTitleInput) testTitleInput.value = test.title;
+                if (testPrioritySelect) testPrioritySelect.value = test.priority;
                 
                 // Заполнить селектор требований
                 const requirementSelect = document.getElementById('test-requirement');
-                requirementSelect.innerHTML = '<option value="">Выберите требование</option>';
-                currentProject.requirements.forEach(req => {
-                    const option = document.createElement('option');
-                    option.value = req.id;
-                    option.textContent = `${req.id}: ${req.title}`;
-                    if (req.id === test.requirementId) {
-                        option.selected = true;
-                    }
-                    requirementSelect.appendChild(option);
-                });
+                if (requirementSelect) {
+                    requirementSelect.innerHTML = '<option value="">Выберите требование</option>';
+                    currentProject.requirements.forEach(req => {
+                        const option = document.createElement('option');
+                        option.value = req.id;
+                        option.textContent = `${req.id}: ${req.title}`;
+                        if (req.id === test.requirementId) {
+                            option.selected = true;
+                        }
+                        requirementSelect.appendChild(option);
+                    });
+                }
             }
-        }
-
-        function generateTestsFromRequirements() {
-            showNotification('Генерация тестов из требований в разработке', 'info');
         }
 
         function addTestStep() {
             const stepsList = document.getElementById('test-steps-list');
+            if (!stepsList) return;
+            
             const stepCount = stepsList.children.length + 1;
             
             const stepDiv = document.createElement('div');
@@ -2828,25 +2929,25 @@ ID: TC-[ID]
             `;
             
             stepsList.appendChild(stepDiv);
-            lucide.createIcons();
+            
+            if (window.lucide && window.lucide.createIcons) {
+                lucide.createIcons();
+            }
             
             stepDiv.querySelector('.remove-step').addEventListener('click', function() {
                 stepsList.removeChild(stepDiv);
             });
         }
 
-        function filterTestCases() {
-            const status = document.getElementById('filter-test-status').value;
-            // Здесь можно реализовать фильтрацию
-        }
-
         // Инструменты
         function validateJSON() {
-            const input = document.getElementById('json-input').value;
+            const input = document.getElementById('json-input');
             const resultDiv = document.getElementById('json-result');
             
+            if (!input || !resultDiv) return;
+            
             try {
-                JSON.parse(input);
+                JSON.parse(input.value);
                 resultDiv.className = 'mt-3 p-3 rounded-lg bg-emerald-900/30 border border-emerald-800/50';
                 resultDiv.innerHTML = '<div class="text-emerald-400">✓ JSON валиден</div>';
                 resultDiv.classList.remove('hidden');
@@ -2861,6 +2962,7 @@ ID: TC-[ID]
 
         function formatJSON() {
             const input = document.getElementById('json-input');
+            if (!input) return;
             
             try {
                 const parsed = JSON.parse(input.value);
@@ -2873,6 +2975,7 @@ ID: TC-[ID]
 
         function minifyJSON() {
             const input = document.getElementById('json-input');
+            if (!input) return;
             
             try {
                 const parsed = JSON.parse(input.value);
@@ -2884,11 +2987,13 @@ ID: TC-[ID]
         }
 
         function convertJsonToYaml() {
-            const jsonInput = document.getElementById('json-to-yaml').value;
+            const jsonInput = document.getElementById('json-to-yaml');
             const yamlOutput = document.getElementById('yaml-output');
             
+            if (!jsonInput || !yamlOutput) return;
+            
             try {
-                const obj = JSON.parse(jsonInput);
+                const obj = JSON.parse(jsonInput.value);
                 const yaml = jsonToYaml(obj);
                 yamlOutput.value = yaml;
                 showNotification('JSON конвертирован в YAML', 'success');
@@ -2924,31 +3029,36 @@ ID: TC-[ID]
         }
 
         function convertCase(caseType) {
-            const input = document.getElementById('case-input').value;
-            let output = '';
+            const input = document.getElementById('case-input');
+            const output = document.getElementById('case-output');
+            
+            if (!input || !output) return;
+            
+            const text = input.value;
+            let result = '';
             
             switch(caseType) {
                 case 'camel':
-                    output = input.replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
+                    result = text.replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
                                  .replace(/^[A-Z]/, first => first.toLowerCase());
                     break;
                 case 'pascal':
-                    output = input.replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
+                    result = text.replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
                                  .replace(/^[a-z]/, first => first.toUpperCase());
                     break;
                 case 'snake':
-                    output = input.replace(/([a-z])([A-Z])/g, '$1_$2')
+                    result = text.replace(/([a-z])([A-Z])/g, '$1_$2')
                                  .replace(/[^a-zA-Z0-9]+/g, '_')
                                  .toLowerCase();
                     break;
                 case 'kebab':
-                    output = input.replace(/([a-z])([A-Z])/g, '$1-$2')
+                    result = text.replace(/([a-z])([A-Z])/g, '$1-$2')
                                  .replace(/[^a-zA-Z0-9]+/g, '-')
                                  .toLowerCase();
                     break;
             }
             
-            document.getElementById('case-output').textContent = output;
+            output.textContent = result;
         }
 
         function generateEmail() {
@@ -2957,8 +3067,11 @@ ID: TC-[ID]
             const name = Math.random().toString(36).substring(2, 10);
             const email = `${name}@${domain}`;
             
-            document.getElementById('generated-data').textContent = email;
-            document.getElementById('generated-data').classList.remove('hidden');
+            const output = document.getElementById('generated-data');
+            if (output) {
+                output.textContent = email;
+                output.classList.remove('hidden');
+            }
         }
 
         function generatePhone() {
@@ -2967,8 +3080,11 @@ ID: TC-[ID]
                          Math.floor(Math.random() * 100).toString().padStart(2, '0') + '-' +
                          Math.floor(Math.random() * 100).toString().padStart(2, '0');
             
-            document.getElementById('generated-data').textContent = phone;
-            document.getElementById('generated-data').classList.remove('hidden');
+            const output = document.getElementById('generated-data');
+            if (output) {
+                output.textContent = phone;
+                output.classList.remove('hidden');
+            }
         }
 
         function generateName() {
@@ -2977,8 +3093,11 @@ ID: TC-[ID]
             const name = names[Math.floor(Math.random() * names.length)];
             const surname = surnames[Math.floor(Math.random() * surnames.length)];
             
-            document.getElementById('generated-data').textContent = `${name} ${surname}`;
-            document.getElementById('generated-data').classList.remove('hidden');
+            const output = document.getElementById('generated-data');
+            if (output) {
+                output.textContent = `${name} ${surname}`;
+                output.classList.remove('hidden');
+            }
         }
 
         // Чек-листы
@@ -3009,8 +3128,11 @@ ID: TC-[ID]
             const total = checkboxes.length;
             const percentage = total > 0 ? Math.round((checked / total) * 100) : 0;
             
-            document.getElementById('checklist-progress').textContent = `${percentage}%`;
-            document.getElementById('progress-bar').style.width = `${percentage}%`;
+            const progressText = document.getElementById('checklist-progress');
+            const progressBar = document.getElementById('progress-bar');
+            
+            if (progressText) progressText.textContent = `${percentage}%`;
+            if (progressBar) progressBar.style.width = `${percentage}%`;
         }
 
         function saveAllChecklists() {
@@ -3087,8 +3209,11 @@ ID: TC-[ID]
                     analytics: {}
                 };
                 
-                document.getElementById('project-name').textContent = 'Новый проект';
-                document.getElementById('current-project').textContent = 'Проект: Новый проект';
+                const projectName = document.getElementById('project-name');
+                const currentProjectSpan = document.getElementById('current-project');
+                
+                if (projectName) projectName.textContent = 'Новый проект';
+                if (currentProjectSpan) currentProjectSpan.textContent = 'Проект: Новый проект';
                 
                 initializeUI();
                 saveToLocalStorage();
@@ -3127,86 +3252,71 @@ ID: TC-[ID]
             const task = prompt('Введите задачу:');
             if (task) {
                 const tasksList = document.getElementById('upcoming-tasks');
-                const taskDiv = document.createElement('div');
-                taskDiv.className = 'flex items-center gap-3 p-3 bg-slate-800 rounded-lg';
-                taskDiv.innerHTML = `
-                    <input type="checkbox" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500">
-                    <span class="text-slate-300">${task}</span>
-                    <button class="ml-auto text-slate-500 hover:text-red-400">
-                        <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    </button>
-                `;
-                
-                tasksList.appendChild(taskDiv);
-                lucide.createIcons();
-                
-                taskDiv.querySelector('button').addEventListener('click', function() {
-                    tasksList.removeChild(taskDiv);
-                });
-                
-                showNotification('Задача добавлена', 'success');
+                if (tasksList) {
+                    const taskDiv = document.createElement('div');
+                    taskDiv.className = 'flex items-center gap-3 p-3 bg-slate-800 rounded-lg';
+                    taskDiv.innerHTML = `
+                        <input type="checkbox" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500">
+                        <span class="text-slate-300">${task}</span>
+                        <button class="ml-auto text-slate-500 hover:text-red-400">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    `;
+                    
+                    tasksList.appendChild(taskDiv);
+                    
+                    if (window.lucide && window.lucide.createIcons) {
+                        lucide.createIcons();
+                    }
+                    
+                    taskDiv.querySelector('button').addEventListener('click', function() {
+                        tasksList.removeChild(taskDiv);
+                    });
+                    
+                    showNotification('Задача добавлена', 'success');
+                }
             }
         }
 
-        // API
-        function addApiEndpoint() {
-            showNotification('Добавление API endpoint в разработке', 'info');
-        }
-
-        function importSwagger() {
-            showNotification('Импорт Swagger в разработке', 'info');
-        }
-
-        function exportOpenAPI() {
-            showNotification('Экспорт OpenAPI в разработке', 'info');
-        }
-
-        function addApiParam() {
-            showNotification('Добавление параметра API в разработке', 'info');
-        }
-
-        // Процессы
-        function addProcess() {
-            showNotification('Добавление процесса в разработке', 'info');
-        }
-
-        function analyzeProcess() {
-            showNotification('Анализ процесса в разработке', 'info');
-        }
-
-        // Модели данных
-        function addDataModel() {
-            showNotification('Добавление модели данных в разработке', 'info');
-        }
-
-        function generateSQL() {
-            showNotification('Генерация SQL в разработке', 'info');
-        }
-
-        function addEntity() {
-            showNotification('Добавление сущности в разработке', 'info');
-        }
-
-        function addAttribute() {
-            showNotification('Добавление атрибута в разработке', 'info');
-        }
-
-        // Аналитика
-        function addRiskToMatrix(x, y) {
-            const risk = prompt('Введите описание риска:');
-            if (risk) {
-                const riskList = document.getElementById('risk-list');
-                const riskItem = document.createElement('div');
-                riskItem.className = 'text-sm p-2 bg-slate-800 rounded mb-2';
-                riskItem.textContent = `[${x},${y}]: ${risk}`;
-                riskList.appendChild(riskItem);
-                showNotification('Риск добавлен в матрицу', 'success');
-            }
+        // Дашборд
+        function updateDashboardStats() {
+            const reqCount = document.getElementById('req-count');
+            const reqCompleted = document.getElementById('req-completed');
+            const diagramCount = document.getElementById('diagram-count');
+            const testCount = document.getElementById('test-count');
+            
+            if (reqCount) reqCount.textContent = currentProject.requirements.length;
+            if (reqCompleted) reqCompleted.textContent = currentProject.requirements.filter(r => r.status === 'implemented').length;
+            if (diagramCount) diagramCount.textContent = currentProject.diagrams.length;
+            if (testCount) testCount.textContent = currentProject.testCases.length;
+            
+            // Прогресс
+            const totalReqs = currentProject.requirements.length;
+            const approvedReqs = currentProject.requirements.filter(r => r.status === 'approved' || r.status === 'implemented').length;
+            const reqProgress = totalReqs > 0 ? Math.round((approvedReqs / totalReqs) * 100) : 0;
+            
+            const progressReq = document.getElementById('progress-req');
+            const progressBarReq = document.getElementById('progress-bar-req');
+            
+            if (progressReq) progressReq.textContent = `${reqProgress}%`;
+            if (progressBarReq) progressBarReq.style.width = `${reqProgress}%`;
+            
+            // Обновляем график
+            initializeProjectChart();
         }
 
         function initializeProjectChart() {
-            const ctx = document.getElementById('project-chart').getContext('2d');
-            new Chart(ctx, {
+            const canvas = document.getElementById('project-chart');
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // Удаляем старый график если есть
+            if (window.projectChart) {
+                window.projectChart.destroy();
+            }
+            
+            window.projectChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
                     labels: ['Требования', 'Диаграммы', 'Тест-кейсы', 'Процессы', 'Модели'],
@@ -3258,158 +3368,6 @@ ID: TC-[ID]
             });
         }
 
-        // Трассируемость
-        function renderTraceabilityMatrix() {
-            const matrix = document.getElementById('traceability-matrix');
-            matrix.innerHTML = '';
-            
-            // Создаем заголовки
-            const requirements = currentProject.requirements;
-            const tests = currentProject.testCases;
-            
-            if (requirements.length === 0 || tests.length === 0) {
-                matrix.innerHTML = '<div class="p-4 text-slate-400 text-center">Добавьте требования и тест-кейсы для построения матрицы</div>';
-                return;
-            }
-            
-            // Создаем сетку
-            matrix.style.gridTemplateColumns = `repeat(${tests.length + 1}, auto)`;
-            
-            // Заголовок строк
-            const emptyHeader = document.createElement('div');
-            emptyHeader.className = 'trace-header';
-            emptyHeader.textContent = 'Требования →';
-            matrix.appendChild(emptyHeader);
-            
-            // Заголовки столбцов (тест-кейсы)
-            tests.forEach(test => {
-                const header = document.createElement('div');
-                header.className = 'trace-header';
-                header.textContent = test.id;
-                header.title = test.title;
-                matrix.appendChild(header);
-            });
-            
-            // Строки матрицы
-            requirements.forEach(req => {
-                // Заголовок строки (требование)
-                const reqHeader = document.createElement('div');
-                reqHeader.className = 'trace-header';
-                reqHeader.textContent = req.id;
-                reqHeader.title = req.title;
-                matrix.appendChild(reqHeader);
-                
-                // Ячейки матрицы
-                tests.forEach(test => {
-                    const cell = document.createElement('div');
-                    cell.className = 'trace-cell';
-                    
-                    // Проверяем связь (здесь можно добавить реальную логику)
-                    const isLinked = test.requirementId === req.id;
-                    if (isLinked) {
-                        cell.classList.add('linked');
-                        cell.textContent = '✓';
-                    }
-                    
-                    cell.addEventListener('click', () => toggleTraceLink(req.id, test.id));
-                    matrix.appendChild(cell);
-                });
-            });
-            
-            // Обновляем статистику
-            updateTraceabilityStats();
-        }
-
-        function toggleTraceLink(reqId, testId) {
-            const test = currentProject.testCases.find(t => t.id === testId);
-            if (test) {
-                if (test.requirementId === reqId) {
-                    test.requirementId = '';
-                } else {
-                    test.requirementId = reqId;
-                }
-                saveToLocalStorage();
-                renderTraceabilityMatrix();
-                showNotification('Связь обновлена', 'success');
-            }
-        }
-
-        function updateTraceabilityStats() {
-            const totalReqs = currentProject.requirements.length;
-            const totalTests = currentProject.testCases.length;
-            const linkedTests = currentProject.testCases.filter(t => t.requirementId).length;
-            const coverage = totalReqs > 0 ? Math.round((linkedTests / totalReqs) * 100) : 0;
-            
-            document.getElementById('trace-req-count').textContent = totalReqs;
-            document.getElementById('trace-tests-count').textContent = totalTests;
-            document.getElementById('trace-tasks-count').textContent = linkedTests;
-            document.getElementById('trace-coverage').textContent = `${coverage}%`;
-        }
-
-        function autoTraceRequirements() {
-            // Простая автоматическая трассировка
-            currentProject.testCases.forEach(test => {
-                if (!test.requirementId && currentProject.requirements.length > 0) {
-                    // Назначаем первое подходящее требование
-                    const matchingReq = currentProject.requirements.find(req => 
-                        test.title.toLowerCase().includes(req.title.toLowerCase().substring(0, 10)) ||
-                        req.title.toLowerCase().includes(test.title.toLowerCase().substring(0, 10))
-                    );
-                    
-                    if (matchingReq) {
-                        test.requirementId = matchingReq.id;
-                    }
-                }
-            });
-            
-            saveToLocalStorage();
-            renderTraceabilityMatrix();
-            showNotification('Авто-трассировка выполнена', 'success');
-        }
-
-        function exportTraceabilityMatrix() {
-            let csv = 'Требование,Тест-кейс,Связано\n';
-            
-            currentProject.requirements.forEach(req => {
-                currentProject.testCases.forEach(test => {
-                    const isLinked = test.requirementId === req.id;
-                    csv += `${req.id},${test.id},${isLinked ? 'Да' : 'Нет'}\n`;
-                });
-            });
-            
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'traceability-matrix.csv';
-            a.click();
-            URL.revokeObjectURL(url);
-            
-            showNotification('Матрица трассируемости экспортирована', 'success');
-        }
-
-        // Дашборд
-        function updateDashboardStats() {
-            document.getElementById('req-count').textContent = currentProject.requirements.length;
-            document.getElementById('req-completed').textContent = currentProject.requirements.filter(r => r.status === 'implemented').length;
-            document.getElementById('diagram-count').textContent = currentProject.diagrams.length;
-            document.getElementById('test-count').textContent = currentProject.testCases.length;
-            
-            // Прогресс
-            const totalReqs = currentProject.requirements.length;
-            const approvedReqs = currentProject.requirements.filter(r => r.status === 'approved' || r.status === 'implemented').length;
-            const reqProgress = totalReqs > 0 ? Math.round((approvedReqs / totalReqs) * 100) : 0;
-            
-            document.getElementById('progress-req').textContent = `${reqProgress}%`;
-            document.getElementById('progress-bar-req').style.width = `${reqProgress}%`;
-            
-            // Обновляем график
-            if (window.projectChart) {
-                window.projectChart.destroy();
-            }
-            initializeProjectChart();
-        }
-
         // Сохранение и загрузка
         function saveToLocalStorage() {
             const data = {
@@ -3428,32 +3386,15 @@ ID: TC-[ID]
                     const data = JSON.parse(saved);
                     currentProject = data.currentProject || currentProject;
                     
-                    document.getElementById('project-name').textContent = currentProject.name;
-                    document.getElementById('current-project').textContent = `Проект: ${currentProject.name}`;
+                    const projectName = document.getElementById('project-name');
+                    const currentProjectSpan = document.getElementById('current-project');
+                    
+                    if (projectName) projectName.textContent = currentProject.name;
+                    if (currentProjectSpan) currentProjectSpan.textContent = `Проект: ${currentProject.name}`;
                 } catch (error) {
                     console.error('Ошибка загрузки данных:', error);
                 }
             }
-        }
-
-        function setupAutoSave() {
-            // Автосохранение каждые 30 секунд
-            setInterval(() => {
-                saveToLocalStorage();
-            }, 30000);
-            
-            // Автосохранение при изменении шаблона
-            document.getElementById('template-editor').addEventListener('input', () => {
-                updateTemplateCharCount();
-            });
-            
-            // Автосохранение при изменении диаграммы
-            document.getElementById('mermaid-editor').addEventListener('input', () => {
-                clearTimeout(window.diagramSaveTimeout);
-                window.diagramSaveTimeout = setTimeout(() => {
-                    renderDiagram();
-                }, 1000);
-            });
         }
 
         function updateLastSaveTime() {
@@ -3463,7 +3404,11 @@ ID: TC-[ID]
                 minute: '2-digit',
                 second: '2-digit'
             });
-            document.getElementById('last-save').textContent = timeString;
+            
+            const lastSave = document.getElementById('last-save');
+            if (lastSave) {
+                lastSave.textContent = timeString;
+            }
         }
 
         // Уведомления
@@ -3471,6 +3416,8 @@ ID: TC-[ID]
             const notification = document.getElementById('notification');
             const notificationText = document.getElementById('notification-text');
             const notificationIcon = document.getElementById('notification-icon');
+            
+            if (!notification || !notificationText || !notificationIcon) return;
             
             notificationText.textContent = message;
             
@@ -3501,7 +3448,10 @@ ID: TC-[ID]
             }
             
             notificationIcon.setAttribute('data-lucide', iconName);
-            lucide.createIcons();
+            
+            if (window.lucide && window.lucide.createIcons) {
+                lucide.createIcons();
+            }
             
             notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-sm ${bgColor} ${textColor} border ${borderColor}`;
             notification.classList.remove('hidden');
@@ -3509,6 +3459,96 @@ ID: TC-[ID]
             setTimeout(() => {
                 notification.classList.add('hidden');
             }, 5000);
+        }
+
+        // Функции в разработке
+        function generateTestsFromRequirements() {
+            showNotification('Генерация тестов из требований в разработке', 'info');
+        }
+
+        function importRequirements() {
+            showNotification('Импорт требований в разработке', 'info');
+        }
+
+        function exportRequirements() {
+            showNotification('Экспорт требований в разработке', 'info');
+        }
+
+        function addApiEndpoint() {
+            showNotification('Добавление API endpoint в разработке', 'info');
+        }
+
+        function importSwagger() {
+            showNotification('Импорт Swagger в разработке', 'info');
+        }
+
+        function exportOpenAPI() {
+            showNotification('Экспорт OpenAPI в разработке', 'info');
+        }
+
+        function addApiParam() {
+            showNotification('Добавление параметра API в разработке', 'info');
+        }
+
+        function addProcess() {
+            showNotification('Добавление процесса в разработке', 'info');
+        }
+
+        function analyzeProcess() {
+            showNotification('Анализ процесса в разработке', 'info');
+        }
+
+        function addDataModel() {
+            showNotification('Добавление модели данных в разработке', 'info');
+        }
+
+        function generateSQL() {
+            showNotification('Генерация SQL в разработке', 'info');
+        }
+
+        function autoTraceRequirements() {
+            showNotification('Авто-трассировка в разработке', 'info');
+        }
+
+        function exportTraceabilityMatrix() {
+            showNotification('Экспорт матрицы трассируемости в разработке', 'info');
+        }
+
+        // Матрица трассируемости
+        function renderTraceabilityMatrix() {
+            const matrix = document.getElementById('traceability-matrix');
+            if (!matrix) return;
+            
+            matrix.innerHTML = '';
+            
+            // Создаем заголовки
+            const requirements = currentProject.requirements;
+            const tests = currentProject.testCases;
+            
+            if (requirements.length === 0 || tests.length === 0) {
+                matrix.innerHTML = '<div class="p-4 text-slate-400 text-center">Добавьте требования и тест-кейсы для построения матрицы</div>';
+                return;
+            }
+            
+            // Обновляем статистику
+            updateTraceabilityStats();
+        }
+
+        function updateTraceabilityStats() {
+            const totalReqs = currentProject.requirements.length;
+            const totalTests = currentProject.testCases.length;
+            const linkedTests = currentProject.testCases.filter(t => t.requirementId).length;
+            const coverage = totalReqs > 0 ? Math.round((linkedTests / totalReqs) * 100) : 0;
+            
+            const traceReqCount = document.getElementById('trace-req-count');
+            const traceTestsCount = document.getElementById('trace-tests-count');
+            const traceTasksCount = document.getElementById('trace-tasks-count');
+            const traceCoverage = document.getElementById('trace-coverage');
+            
+            if (traceReqCount) traceReqCount.textContent = totalReqs;
+            if (traceTestsCount) traceTestsCount.textContent = totalTests;
+            if (traceTasksCount) traceTasksCount.textContent = linkedTests;
+            if (traceCoverage) traceCoverage.textContent = `${coverage}%`;
         }
 
         // Глобальные функции для отладки
@@ -3519,6 +3559,8 @@ ID: TC-[ID]
             showNotification,
             exportAllData
         };
+        
+        console.log('Приложение SA Toolkit Pro загружено и готово к работе');
     </script>
 </body>
 </html>
