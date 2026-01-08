@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SA Toolkit One-File - Рабочее место системного аналитика</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <!-- Mermaid.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+    <!-- Marked.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg-primary: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: #f1f5f9;
+            --accent-primary: #38bdf8;
+        }
+        
+        body {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+        }
+        
+        .tab-active {
+            border-bottom-color: var(--accent-primary);
+            color: var(--accent-primary);
+        }
+        
+        .card {
+            background-color: var(--bg-card);
+            border-radius: 0.75rem;
+            border: 1px solid #334155;
+        }
+        
+        .code-block {
+            font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+            font-size: 0.875rem;
+        }
+        
+        .json-error {
+            border-color: #f87171 !important;
+        }
+        
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 220px;
+            background-color: #1e293b;
+            color: #f1f5f9;
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -110px;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid #334155;
+            font-size: 0.875rem;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+        
+        .checkbox-item {
+            transition: all 0.2s;
+        }
+        
+        .checkbox-item:hover {
+            background-color: rgba(56, 189, 248, 0.1);
+        }
+        
+        /* Скроллбар стилизация */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #475569;
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: #64748b;
+        }
+        
+        .mermaid {
+            background-color: white;
+            border-radius: 0.5rem;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <!-- Заголовок -->
+        <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+            <div>
+                <h1 class="text-3xl font-bold text-sky-400 flex items-center gap-2">
+                    <i data-lucide="briefcase" class="w-8 h-8"></i> SA Toolkit One-File
+                </h1>
+                <p class="text-slate-300 mt-2">Рабочее место системного аналитика. Все инструменты в одном файле.</p>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="tooltip">
+                    <button id="export-all" class="flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition">
+                        <i data-lucide="download" class="w-4 h-4"></i> Экспорт всех данных
+                    </button>
+                    <span class="tooltiptext">Экспортирует все ваши данные (шаблоны, диаграммы, чек-листы) в JSON файл</span>
+                </div>
+                <div class="tooltip">
+                    <button id="import-all" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                        <i data-lucide="upload" class="w-4 h-4"></i> Импорт данных
+                    </button>
+                    <span class="tooltiptext">Импортировать ранее сохраненные данные из JSON файла</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Навигация -->
+        <nav class="flex flex-wrap border-b border-slate-700 mb-8">
+            <button data-tab="templates" class="tab-btn py-3 px-6 font-medium text-slate-300 hover:text-sky-400 transition border-b-2 border-transparent hover:border-sky-400">Шаблоны</button>
+            <button data-tab="diagrams" class="tab-btn py-3 px-6 font-medium text-slate-300 hover:text-sky-400 transition border-b-2 border-transparent hover:border-sky-400">Диаграммы</button>
+            <button data-tab="reference" class="tab-btn py-3 px-6 font-medium text-slate-300 hover:text-sky-400 transition border-b-2 border-transparent hover:border-sky-400">Справочник</button>
+            <button data-tab="tools" class="tab-btn py-3 px-6 font-medium text-slate-300 hover:text-sky-400 transition border-b-2 border-transparent hover:border-sky-400">Инструменты</button>
+            <button data-tab="checklists" class="tab-btn py-3 px-6 font-medium text-slate-300 hover:text-sky-400 transition border-b-2 border-transparent hover:border-sky-400">Чек-листы</button>
+        </nav>
+
+        <!-- Основное содержимое -->
+        <main>
+            <!-- Блок 1: Генератор шаблонов -->
+            <div id="templates" class="tab-content">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Левая колонка: Выбор шаблона -->
+                    <div class="card p-6 lg:col-span-1">
+                        <h2 class="text-xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-5 h-5"></i> Выбор шаблона
+                        </h2>
+                        <div class="space-y-3">
+                            <button data-template="user-story" class="w-full text-left p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">
+                                <div class="font-medium">User Story</div>
+                                <div class="text-sm text-slate-300 mt-1">Я, как &lt;роль&gt;, хочу &lt;действие&gt;, чтобы &lt;профит&gt;</div>
+                            </button>
+                            <button data-template="use-case" class="w-full text-left p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">
+                                <div class="font-medium">Use Case</div>
+                                <div class="text-sm text-slate-300 mt-1">Название, Акторы, Предусловия, Основной поток</div>
+                            </button>
+                            <button data-template="api-endpoint" class="w-full text-left p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">
+                                <div class="font-medium">API Endpoint</div>
+                                <div class="text-sm text-slate-300 mt-1">Method, Path, Headers, Request Body, Responses</div>
+                            </button>
+                            <button data-template="integration-contract" class="w-full text-left p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">
+                                <div class="font-medium">Интеграционный контракт</div>
+                                <div class="text-sm text-slate-300 mt-1">Таблица с полями: Поле, Тип, Обязательность, Описание</div>
+                            </button>
+                            <button data-template="business-rule" class="w-full text-left p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">
+                                <div class="font-medium">Бизнес-правило</div>
+                                <div class="text-sm text-slate-300 mt-1">Условие, Действие, Исключения</div>
+                            </button>
+                            <button data-template="test-case" class="w-full text-left p-3 rounded-lg bg-slate-700 hover:bg-slate-600 transition">
+                                <div class="font-medium">Тест-кейс</div>
+                                <div class="text-sm text-slate-300 mt-1">Предусловия, Шаги, Ожидаемый результат</div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Правая колонка: Редактор шаблона -->
+                    <div class="card p-6 lg:col-span-2">
+                        <div class="flex justify-between items-center mb-4">
+                            <h2 class="text-xl font-bold text-sky-400 flex items-center gap-2">
+                                <i data-lucide="edit" class="w-5 h-5"></i> Редактор шаблона
+                            </h2>
+                            <div class="flex gap-2">
+                                <button id="copy-template" class="flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition">
+                                    <i data-lucide="copy" class="w-4 h-4"></i> Копировать
+                                </button>
+                                <button id="clear-template" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                    <i data-lucide="trash-2" class="w-4 h-4"></i> Очистить
+                                </button>
+                            </div>
+                        </div>
+                        <textarea id="template-editor" class="w-full h-96 p-4 bg-slate-900 text-slate-100 rounded-lg border border-slate-700 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none code-block" placeholder="Выберите шаблон слева..."></textarea>
+                        <div class="mt-4 text-sm text-slate-400">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="info" class="w-4 h-4"></i>
+                                <span>Шаблон автоматически сохраняется в вашем браузере. Измените текст под свои нужды.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Блок 2: Визуализация диаграмм -->
+            <div id="diagrams" class="tab-content hidden">
+                <div class="card p-6 mb-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-sky-400 flex items-center gap-2">
+                            <i data-lucide="git-branch" class="w-5 h-5"></i> Визуализация диаграмм Mermaid
+                        </h2>
+                        <div class="flex gap-2">
+                            <button id="copy-diagram-code" class="flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Код диаграммы
+                            </button>
+                            <button id="export-diagram" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="download" class="w-4 h-4"></i> Экспорт PNG
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- Левая часть: Редактор кода -->
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="font-medium text-slate-300">Редактор Mermaid синтаксиса</h3>
+                                <div class="text-sm text-slate-400">Автосохранение: <span id="save-status" class="text-green-400">Включено</span></div>
+                            </div>
+                            <textarea id="mermaid-input" class="w-full h-96 p-4 bg-slate-900 text-slate-100 rounded-lg border border-slate-700 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none code-block" placeholder="Введите код диаграммы на языке Mermaid...">graph TD
+    A[Клиент] --> B{Система}
+    B --> C[Успешный сценарий]
+    B --> D[Альтернативный сценарий]
+    C --> E[Результат]
+    D --> F[Ошибка]</textarea>
+                        </div>
+                        
+                        <!-- Правая часть: Превью диаграммы -->
+                        <div>
+                            <div class="flex justify-between items-center mb-3">
+                                <h3 class="font-medium text-slate-300">Предпросмотр диаграммы</h3>
+                                <button id="refresh-diagram" class="flex items-center gap-2 px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition text-sm">
+                                    <i data-lucide="refresh-cw" class="w-3 h-3"></i> Обновить
+                                </button>
+                            </div>
+                            <div id="mermaid-output" class="w-full h-96 border border-slate-700 rounded-lg bg-white overflow-auto flex items-center justify-center p-4">
+                                <p class="text-slate-500 text-center">Диаграмма появится здесь после ввода кода</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Быстрые примеры -->
+                    <div>
+                        <h3 class="font-medium text-slate-300 mb-3">Быстрые примеры</h3>
+                        <div class="flex flex-wrap gap-3">
+                            <button data-example="sequence" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="list-ordered" class="w-4 h-4"></i> Sequence Diagram
+                            </button>
+                            <button data-example="flowchart" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="git-branch" class="w-4 h-4"></i> Flowchart
+                            </button>
+                            <button data-example="state" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="circle" class="w-4 h-4"></i> State Diagram
+                            </button>
+                            <button data-example="er" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="database" class="w-4 h-4"></i> ER Diagram
+                            </button>
+                            <button data-example="gantt" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="calendar" class="w-4 h-4"></i> Gantt Chart
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Блок 3: Справочник -->
+            <div id="reference" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- HTTP Status Codes -->
+                    <div class="card p-6">
+                        <h2 class="text-xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                            <i data-lucide="globe" class="w-5 h-5"></i> HTTP Status Codes
+                        </h2>
+                        <div class="space-y-3">
+                            <div class="p-3 rounded-lg bg-green-900/30 border border-green-800/50">
+                                <div class="font-bold text-green-400">200 OK</div>
+                                <div class="text-sm text-slate-300 mt-1">Запрос успешно выполнен</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-green-900/30 border border-green-800/50">
+                                <div class="font-bold text-green-400">201 Created</div>
+                                <div class="text-sm text-slate-300 mt-1">Ресурс успешно создан</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-yellow-900/30 border border-yellow-800/50">
+                                <div class="font-bold text-yellow-400">400 Bad Request</div>
+                                <div class="text-sm text-slate-300 mt-1">Некорректный запрос</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-yellow-900/30 border border-yellow-800/50">
+                                <div class="font-bold text-yellow-400">401 Unauthorized</div>
+                                <div class="text-sm text-slate-300 mt-1">Требуется аутентификация</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-yellow-900/30 border border-yellow-800/50">
+                                <div class="font-bold text-yellow-400">403 Forbidden</div>
+                                <div class="text-sm text-slate-300 mt-1">Доступ запрещен</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-yellow-900/30 border border-yellow-800/50">
+                                <div class="font-bold text-yellow-400">404 Not Found</div>
+                                <div class="text-sm text-slate-300 mt-1">Ресурс не найден</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-red-900/30 border border-red-800/50">
+                                <div class="font-bold text-red-400">500 Internal Server Error</div>
+                                <div class="text-sm text-slate-300 mt-1">Внутренняя ошибка сервера</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-red-900/30 border border-red-800/50">
+                                <div class="font-bold text-red-400">502 Bad Gateway</div>
+                                <div class="text-sm text-slate-300 mt-1">Ошибка шлюза</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-red-900/30 border border-red-800/50">
+                                <div class="font-bold text-red-400">504 Gateway Timeout</div>
+                                <div class="text-sm text-slate-300 mt-1">Таймаут шлюза</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SQL Joins -->
+                    <div class="card p-6">
+                        <h2 class="text-xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                            <i data-lucide="database" class="w-5 h-5"></i> SQL Joins
+                        </h2>
+                        <div class="space-y-4">
+                            <div class="p-3 rounded-lg bg-slate-800">
+                                <div class="font-bold text-sky-400 mb-2">INNER JOIN</div>
+                                <div class="text-sm text-slate-300">Возвращает записи, имеющие совпадения в обеих таблицах</div>
+                                <div class="mt-2 text-xs code-block bg-slate-900 p-2 rounded">SELECT * FROM A INNER JOIN B ON A.key = B.key</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-slate-800">
+                                <div class="font-bold text-sky-400 mb-2">LEFT JOIN</div>
+                                <div class="text-sm text-slate-300">Все записи из левой таблицы и совпадающие из правой</div>
+                                <div class="mt-2 text-xs code-block bg-slate-900 p-2 rounded">SELECT * FROM A LEFT JOIN B ON A.key = B.key</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-slate-800">
+                                <div class="font-bold text-sky-400 mb-2">RIGHT JOIN</div>
+                                <div class="text-sm text-slate-300">Все записи из правой таблицы и совпадающие из левой</div>
+                                <div class="mt-2 text-xs code-block bg-slate-900 p-2 rounded">SELECT * FROM A RIGHT JOIN B ON A.key = B.key</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-slate-800">
+                                <div class="font-bold text-sky-400 mb-2">FULL OUTER JOIN</div>
+                                <div class="text-sm text-slate-300">Все записи из обеих таблиц</div>
+                                <div class="mt-2 text-xs code-block bg-slate-900 p-2 rounded">SELECT * FROM A FULL OUTER JOIN B ON A.key = B.key</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JSON Data Types -->
+                    <div class="card p-6">
+                        <h2 class="text-xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                            <i data-lucide="code" class="w-5 h-5"></i> JSON Data Types
+                        </h2>
+                        <div class="space-y-3">
+                            <div class="p-3 rounded-lg bg-slate-800">
+                                <div class="font-bold text-sky-400">String</div>
+                                <div class="text-sm text-slate-300 mt-1">Текстовые данные в двойных кавычках</div>
+                                <div class="mt-2 text-xs code-block bg-slate-900 p-2 rounded">"name": "Иван Иванов"</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-slate-800">
+                                <div class="font-bold text-sky-400">Number</div>
+                                <div class="text-sm text-slate-300 mt-1">Целые или дробные числа</div>
+                                <div class="mt-2 text-xs code-block bg-slate-900 p-2 rounded">"age": 30, "price": 99.99</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-slate-800">
+                                <div class="font-bold text-sky-400">Boolean</div>
+                                <div class="text-sm text-slate-300 mt-1">Логические значения true/false</div>
+                                <div class="mt-2 text-xs code-block bg-slate-900 p-2 rounded">"active": true, "verified": false</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-slate-800">
+                                <div class="font-bold text-sky-400">Array</div>
+                                <div class="text-sm text-slate-300 mt-1">Упорядоченный список значений</div>
+                                <div class="mt-2 text-xs code-block bg-slate-900 p-2 rounded">"tags": ["user", "premium", "admin"]</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-slate-800">
+                                <div class="font-bold text-sky-400">Object</div>
+                                <div class="text-sm text-slate-300 mt-1">Неупорядоченный набор пар ключ-значение</div>
+                                <div class="mt-2 text-xs code-block bg-slate-900 p-2 rounded">"address": {"city": "Москва", "street": "Ленина"}</div>
+                            </div>
+                            <div class="p-3 rounded-lg bg-slate-800">
+                                <div class="font-bold text-sky-400">Null</div>
+                                <div class="text-sm text-slate-300 mt-1">Пустое значение</div>
+                                <div class="mt-2 text-xs code-block bg-slate-900 p-2 rounded">"middleName": null</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Блок 4: Инструменты -->
+            <div id="tools" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- JSON Validator -->
+                    <div class="card p-6">
+                        <h2 class="text-xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                            <i data-lucide="check-square" class="w-5 h-5"></i> JSON Validator
+                        </h2>
+                        <textarea id="json-input" class="w-full h-64 p-4 bg-slate-900 text-slate-100 rounded-lg border border-slate-700 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none code-block" placeholder='Введите JSON для проверки...'>{
+  "id": 123,
+  "name": "Пример JSON",
+  "active": true,
+  "tags": ["demo", "test"],
+  "metadata": {
+    "createdAt": "2023-01-01",
+    "version": 1
+  }
+}</textarea>
+                        <div class="flex gap-3 mt-4">
+                            <button id="validate-json" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition">
+                                <i data-lucide="check" class="w-4 h-4"></i> Проверить JSON
+                            </button>
+                            <button id="format-json" class="flex-1 flex items-center justify-center gap-2 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="align-left" class="w-4 h-4"></i> Форматировать
+                            </button>
+                            <button id="copy-json" class="flex items-center gap-2 px-4 py-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="copy" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div id="json-result" class="mt-4 p-4 rounded-lg hidden">
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                                <span id="json-message"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Case Converter -->
+                    <div class="card p-6">
+                        <h2 class="text-xl font-bold text-sky-400 mb-4 flex items-center gap-2">
+                            <i data-lucide="type" class="w-5 h-5"></i> Case Converter
+                        </h2>
+                        <input id="case-input" type="text" class="w-full p-4 bg-slate-900 text-slate-100 rounded-lg border border-slate-700 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 focus:outline-none" placeholder="Введите текст для преобразования..." value="user_first_name">
+                        <div class="grid grid-cols-2 gap-3 mt-4">
+                            <button data-case="camel" class="flex items-center justify-center gap-2 p-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="type" class="w-4 h-4"></i> camelCase
+                            </button>
+                            <button data-case="pascal" class="flex items-center justify-center gap-2 p-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="type" class="w-4 h-4"></i> PascalCase
+                            </button>
+                            <button data-case="snake" class="flex items-center justify-center gap-2 p-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="type" class="w-4 h-4"></i> snake_case
+                            </button>
+                            <button data-case="kebab" class="flex items-center justify-center gap-2 p-3 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="type" class="w-4 h-4"></i> kebab-case
+                            </button>
+                        </div>
+                        <div class="mt-6">
+                            <h3 class="font-medium text-slate-300 mb-2">Результат:</h3>
+                            <div id="case-output" class="p-4 bg-slate-900 rounded-lg border border-slate-700 min-h-12 code-block">
+                                <span class="text-slate-400">Выберите стиль преобразования...</span>
+                            </div>
+                            <button id="copy-case" class="mt-3 flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition">
+                                <i data-lucide="copy" class="w-4 h-4"></i> Копировать результат
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Блок 5: Чек-листы -->
+            <div id="checklists" class="tab-content hidden">
+                <div class="card p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-sky-400 flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-5 h-5"></i> Quality Gate - Чек-листы
+                        </h2>
+                        <div class="flex gap-2">
+                            <button id="save-checklist" class="flex items-center gap-2 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition">
+                                <i data-lucide="save" class="w-4 h-4"></i> Сохранить
+                            </button>
+                            <button id="clear-checklist" class="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i> Очистить все
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <!-- Прогресс бар -->
+                    <div class="mb-8">
+                        <div class="flex justify-between mb-2">
+                            <span class="text-slate-300">Общий прогресс</span>
+                            <span id="checklist-progress" class="text-sky-400 font-bold">0%</span>
+                        </div>
+                        <div class="w-full bg-slate-700 rounded-full h-2.5">
+                            <div id="progress-bar" class="bg-sky-600 h-2.5 rounded-full transition-all duration-300" style="width: 0%"></div>
+                        </div>
+                    </div>
+                    
+                    <!-- Категории чек-листов -->
+                    <div class="space-y-8">
+                        <!-- Полнота требований -->
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+                                <i data-lucide="file-text" class="w-5 h-5"></i> Полнота требований
+                            </h3>
+                            <div class="space-y-3">
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="requirements" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Описаны все негативные сценарии?</span>
+                                </label>
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="requirements" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Есть ли описание прав доступа?</span>
+                                </label>
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="requirements" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Определены все бизнес-правила?</span>
+                                </label>
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="requirements" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Указаны граничные значения?</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- API Design -->
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+                                <i data-lucide="server" class="w-5 h-5"></i> API Design
+                            </h3>
+                            <div class="space-y-3">
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="api" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Версии методов указаны?</span>
+                                </label>
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="api" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Типы данных консистентны?</span>
+                                </label>
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="api" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Определены коды ошибок?</span>
+                                </label>
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="api" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Есть примеры запросов/ответов?</span>
+                                </label>
+                            </div>
+                        </div>
+                        
+                        <!-- UI/UX -->
+                        <div>
+                            <h3 class="text-lg font-bold text-slate-300 mb-4 flex items-center gap-2">
+                                <i data-lucide="layout" class="w-5 h-5"></i> UI/UX
+                            </h3>
+                            <div class="space-y-3">
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="ui" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Описаны состояния пустых списков?</span>
+                                </label>
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="ui" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Есть ли обработка ошибок ввода?</span>
+                                </label>
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="ui" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Определены состояния загрузки?</span>
+                                </label>
+                                <label class="checkbox-item flex items-center gap-3 p-3 rounded-lg bg-slate-800 hover:bg-slate-750 cursor-pointer">
+                                    <input type="checkbox" data-category="ui" class="w-5 h-5 rounded border-slate-600 bg-slate-700 text-sky-500 focus:ring-sky-600 focus:ring-offset-slate-800">
+                                    <span class="text-slate-200">Учтена доступность (a11y)?</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Футер -->
+        <footer class="mt-12 pt-8 border-t border-slate-700 text-center text-slate-400 text-sm">
+            <p>SA Toolkit One-File v1.0 | Все данные сохраняются в вашем браузере (localStorage)</p>
+            <p class="mt-2">Создано для системных аналитиков | <span id="last-save">Данные не сохранены</span></p>
+        </footer>
+    </div>
+
+    <!-- Модальное окно для импорта -->
+    <div id="import-modal" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+        <div class="card p-6 max-w-md w-full mx-4">
+            <h3 class="text-xl font-bold text-sky-400 mb-4">Импорт данных</h3>
+            <p class="text-slate-300 mb-4">Выберите файл JSON с ранее экспортированными данными</p>
+            <input type="file" id="import-file" accept=".json" class="w-full p-2 bg-slate-900 border border-slate-700 rounded mb-4">
+            <div class="flex gap-3">
+                <button id="confirm-import" class="flex-1 px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-lg transition">Импортировать</button>
+                <button id="cancel-import" class="flex-1 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white rounded-lg transition">Отмена</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Уведомление -->
+    <div id="notification" class="fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-sm hidden">
+        <div class="flex items-start gap-3">
+            <i data-lucide="check-circle" id="notification-icon" class="w-5 h-5 mt-0.5 flex-shrink-0"></i>
+            <div>
+                <p id="notification-text" class="text-sm"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Инициализация Lucide иконок
+        lucide.createIcons();
+        
+        // Шаблоны текста
+        const templates = {
+            'user-story': `User Story: Просмотр истории заказов
+Как: Зарегистрированный пользователь
+Хочу: Видеть историю своих заказов
+Чтобы: Отслеживать статус текущих и просматривать предыдущие заказы
+
+Критерии приемки:
+1. На странице отображается список заказов за последние 12 месяцев
+2. Для каждого заказа отображается: номер, дата, сумма, статус
+3. Есть возможность фильтрации заказов по статусу (все, активные, завершенные)
+4. Есть возможность поиска заказа по номеру
+5. При клике на заказ открывается детальная информация
+6. В детальной информации отображаются товары в заказе, адрес доставки, история статусов`,
+            
+            'use-case': `Use Case: Оформление возврата товара
+
+Акторы:
+- Клиент (основной актор)
+- Система учета возвратов
+- Менеджер по возвратам (вторичный актор)
+
+Предусловия:
+1. Клиент авторизован в системе
+2. Товар был приобретен не более 30 дней назад
+3. Товар соответствует условиям возврата
+
+Основной поток:
+1. Клиент переходит в раздел "Мои заказы"
+2. Система отображает список последних заказов
+3. Клиент выбирает заказ и нажимает "Вернуть товар"
+4. Система отображает список товаров в заказе с возможностью выбора
+5. Клиент выбирает товары для возврата и указывает причину
+6. Система проверяет возможность возврата выбранных товаров
+7. Система предлагает варианты возврата денег (на карту, бонусный счет)
+8. Клиент выбирает способ возврата и подтверждает заявку
+9. Система создает заявку на возврат и отправляет уведомление менеджеру
+10. Система отображает подтверждение создания заявки
+
+Альтернативные потоки:
+A1: Товар не соответствует условиям возврата
+  1. Система отображает сообщение с причиной отказа
+  2. Use Case завершается
+
+A2: Клиент выбрал частичный возврат
+  1. Система рассчитывает сумму возврата только для выбранных товаров
+
+Постусловия:
+1. Создана заявка на возврат в статусе "На рассмотрении"
+2. Клиент получает уведомление о создании заявки
+3. Менеджер по возвратам получает уведомление о новой заявке`,
+            
+            'api-endpoint': `API Endpoint: Получение списка пользователей
+
+Method: GET
+Path: /api/v1/users
+
+Request Headers:
+- Authorization: Bearer {token}
+- Content-Type: application/json
+- Accept: application/json
+
+Query Parameters:
+- page (optional, number): Номер страницы (по умолчанию 1)
+- limit (optional, number): Количество записей на странице (по умолчанию 20)
+- role (optional, string): Фильтр по роли (admin, user, manager)
+- active (optional, boolean): Фильтр по активности
+
+Request Body: Не требуется
+
+Responses:
+
+200 OK:
+\`\`\`json
+{
+  "success": true,
+  "data": {
+    "users": [
+      {
+        "id": 123,
+        "email": "user@example.com",
+        "firstName": "Иван",
+        "lastName": "Иванов",
+        "role": "user",
+        "active": true,
+        "createdAt": "2023-01-15T10:30:00Z"
+      }
+    ],
+    "pagination": {
+      "page": 1,
+      "limit": 20,
+      "total": 150,
+      "pages": 8
+    }
+  }
+}
+\`\`\`
+
+400 Bad Request:
+\`\`\`json
+{
+  "success": false,
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "message": "Некорректные параметры запроса",
+    "details": {
+      "page": "Должно быть числом больше 0"
+    }
+  }
+}
+\`\`\`
+
+401 Unauthorized:
+\`\`\`json
+{
+  "success": false,
+  "error": {
+    "code": "UNAUTHORIZED",
+    "message": "Требуется аутентификация"
+  }
+}
+\`\`\`
+
+403 Forbidden:
+\`\`\`json
+{
+  "success": false,
+  "error": {
+    "code": "FORBIDDEN",
+    "message": "Недостаточно прав для выполнения операции"
+  }
+}
+\`\`\`
+
+500 Internal Server Error:
+\`\`\`json
+{
+  "success": false,
+  "error": {
+    "code": "INTERNAL_ERROR",
+    "message": "Внутренняя ошибка сервера"
+  }
+}
+\`\`\``,
+            
+            'integration-contract': `Интеграционный контракт: Синхронизация заказов с внешней CRM
+
+Общая информация:
+- Назначение: Синхронизация данных о заказах между основной системой и внешней CRM
+- Частота: Реал-тайм через вебхуки
+- Ответственный: Команда интеграций
+
+Структура данных:
+
+| Поле | Тип | Обязательность | Описание |
+|------|-----|----------------|----------|
+| orderId | string | Обязательно | Уникальный идентификатор заказа в основной системе |
+| externalOrderId | string | Опционально | Идентификатор заказа во внешней системе (если уже создан) |
+| customerEmail | string | Обязательно | Email клиента |
+| customerPhone | string | Опционально | Телефон клиента |
+| customerName | string | Обязательно | Полное имя клиента |
+| orderDate | datetime | Обязательно | Дата и время создания заказа (ISO 8601) |
+| totalAmount | number | Обязательно | Общая сумма заказа |
+| currency | string | Обязательно | Код валюты (RUB, USD, EUR) |
+| status | string | Обязательно | Текущий статус заказа (NEW, PROCESSING, SHIPPED, DELIVERED, CANCELLED) |
+| items | array | Обязательно | Список товаров в заказе |
+| items[].productId | string | Обязательно | Идентификатор товара |
+| items[].productName | string | Обязательно | Название товара |
+| items[].quantity | number | Обязательно | Количество |
+| items[].price | number | Обязательно | Цена за единицу |
+| shippingAddress | object | Обязательно | Адрес доставки |
+| shippingAddress.city | string | Обязательно | Город |
+| shippingAddress.street | string | Обязательно | Улица и дом |
+| shippingAddress.zip | string | Опционально | Почтовый индекс |
+
+Пример запроса:
+\`\`\`json
+{
+  "orderId": "ORD-2023-001234",
+  "customerEmail": "customer@example.com",
+  "customerName": "Алексей Петров",
+  "orderDate": "2023-04-15T14:30:00Z",
+  "totalAmount": 12500.50,
+  "currency": "RUB",
+  "status": "PROCESSING",
+  "items": [
+    {
+      "productId": "PROD-001",
+      "productName": "Смартфон XYZ",
+      "quantity": 1,
+      "price": 12000
+    },
+    {
+      "productId": "PROD-045",
+      "productName": "Чехол для смартфона",
+      "quantity": 1,
+      "price": 500.50
+    }
+  ],
+  "shippingAddress": {
+    "city": "Москва",
+    "street": "ул. Тверская, д. 10",
+    "zip": "125009"
+  }
+}
+\`\`\``,
+            
+            'business-rule': `Бизнес-правило: Расчет скидки для постоянных клиентов
+
+Идентификатор: BR-LOYALTY-001
+Категория: Лояльность и скидки
+Дата вступления в силу: 2023-01-01
+Статус: Активно
+
+Условие:
+- Клиент зарегистрирован более 6 месяцев назад
+- Клиент совершил минимум 3 заказа за последние 12 месяцев
+- Сумма всех заказов клиента превышает 50 000 руб.
+- Текущий заказ не содержит товары со скидкой
+- Клиент не использует другие промокоды
+
+Действие:
+- Применить скидку 10% на текущий заказ
+- Максимальная сумма скидки: 5 000 руб.
+- Скидка применяется после всех других расчетов
+
+Исключения:
+- Скидка не применяется к товарам категории "Распродажа"
+- Скидка не применяется к услугам доставки
+- Скидка не суммируется с другими процентными скидками
+
+Валидация:
+- Система должна проверять выполнение всех условий
+- Клиент должен видеть примененную скидку в корзине
+- В чеке должна быть указана причина скидки: "Скидка постоянного клиента"`,
+            
+            'test-case': `Тест-кейс: Добавление товара в корзину
+
+Идентификатор: TC-CART-001
+Приоритет: Высокий
+Тип: Функциональный
+Связанные требования: REQ-CART-001, REQ-CART-002
+
+Предусловия:
+1. Пользователь находится на главной странице сайта
+2. Пользователь не авторизован в системе
+3. В системе есть доступные для заказа товары
+
+Шаги:
+1. Пользователь нажимает на карточку товара "Смартфон XYZ"
+2. Система открывает страницу деталей товара
+3. Пользователь нажимает кнопку "Добавить в корзину"
+4. Система отображает попап подтверждения добавления в корзину
+5. Пользователь нажимает "Продолжить покупки"
+6. Пользователь переходит на страницу другого товара "Чехол для смартфона"
+7. Пользователь нажимает кнопку "Добавить в корзину"
+8. Пользователь нажимает кнопку "Перейти в корзину"
+
+Ожидаемый результат:
+1. Оба товара добавлены в корзину
+2. В корзине отображается корректное количество товаров: 2
+3. Сумма корзины равна сумме цен добавленных товаров
+4. В шапке сайта отображается счетчик корзины с числом 2
+
+Постусловия:
+1. Корзина сохраняет добавленные товары
+2. Пользователь может продолжить оформление заказа`
+        };
+
+        // Примеры для Mermaid диаграмм
+        const mermaidExamples = {
+            'sequence': `sequenceDiagram
+    participant Клиент
+    participant Сервер
+    participant БазаДанных
+    
+    Клиент->>Сервер: POST /api/login
+    Сервер->>БазаДанных: Проверка учетных данных
+    БазаДанных-->>Сервер: Данные пользователя
+    Сервер-->>Клиент: JWT токен
+    
+    Клиент->>Сервер: GET /api/profile (с токеном)
+    Сервер-->>Клиент: Данные профиля`,
+            
+            'flowchart': `graph TD
+    A[Начало: Запрос на сброс пароля] --> B{Пользователь существует?}
+    B -->|Да| C[Сгенерировать токен сброса]
+    B -->|Нет| D[Вернуть ошибку 404]
+    C --> E[Отправить email с ссылкой]
+    E --> F[Пользователь переходит по ссылке]
+    F --> G{Токен валиден?}
+    G -->|Да| H[Показать форму нового пароля]
+    G -->|Нет| I[Показать ошибку]
+    H --> J[Обновить пароль в БД]
+    J --> K[Уведомить об успехе]`,
+            
+            'state': `stateDiagram-v2
+    [*] --> Черновик
+    
+    Черновик --> НаРассмотрении : Отправить
+    НаРассмотрении --> Одобрено : Утвердить
+    НаРассмотрении --> НаДоработке : Запросить правки
+    НаДоработке --> НаРассмотрении : Отправить снова
+    Одобрено --> ВРаботе : Начать реализацию
+    ВРаботе --> Тестирование : Завершить разработку
+    Тестирование --> Готово : Успешное тестирование
+    Тестирование --> ВРаботе : Найдены баги
+    
+    НаРассмотрении --> Отклонено : Отклонить
+    Отклонено --> [*]
+    Готово --> [*]`,
+            
+            'er': `erDiagram
+    CUSTOMER ||--o{ ORDER : places
+    ORDER ||--|{ ORDER_LINE : contains
+    PRODUCT ||--o{ ORDER_LINE : includes
+    CUSTOMER {
+        string customerId PK
+        string firstName
+        string lastName
+        string email
+        string phone
+    }
+    ORDER {
+        string orderId PK
+        date orderDate
+        decimal totalAmount
+        string status
+    }
+    PRODUCT {
+        string productId PK
+        string name
+        decimal price
+        int stockQuantity
+    }
+    ORDER_LINE {
+        int lineId PK
+        int quantity
+        decimal unitPrice
+    }`,
+            
+            'gantt': `gantt
+    title План разработки функционала
+    dateFormat YYYY-MM-DD
+    section Анализ
+    Сбор требований :2023-10-01, 7d
+    Создание ТЗ :2023-10-08, 5d
+    section Разработка
+    Backend :2023-10-15, 14d
+    Frontend :2023-10-22, 10d
+    section Тестирование
+    Интеграционное тестирование :2023-11-05, 7d
+    Приемочное тестирование :2023-11-12, 5d`
+        };
+
+        // Инициализация приложения
+        document.addEventListener('DOMContentLoaded', function() {
+            // Инициализация Mermaid
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'default',
+                flowchart: { useMaxWidth: false }
+            });
+            
+            // Инициализация состояний
+            initializeApp();
+            
+            // Настройка обработчиков событий
+            setupEventListeners();
+            
+            // Отображаем первую вкладку
+            showTab('templates');
+            
+            // Показываем статус сохранения
+            updateLastSaveTime();
+        });
+
+        // Инициализация состояния приложения
+        function initializeApp() {
+            // Загрузка данных из localStorage
+            loadFromLocalStorage();
+            
+            // Загрузка шаблонов
+            loadTemplateEditor();
+            
+            // Инициализация чек-листов
+            initializeChecklists();
+            
+            // Инициализация диаграмм
+            initializeDiagram();
+        }
+
+        // Настройка обработчиков событий
+        function setupEventListeners() {
+            // Навигация по вкладкам
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const tabId = this.getAttribute('data-tab');
+                    showTab(tabId);
+                });
+            });
+            
+            // Выбор шаблонов
+            document.querySelectorAll('[data-template]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const templateId = this.getAttribute('data-template');
+                    loadTemplate(templateId);
+                });
+            });
+            
+            // Копирование шаблона
+            document.getElementById('copy-template').addEventListener('click', copyTemplate);
+            document.getElementById('clear-template').addEventListener('click', clearTemplate);
+            
+            // Диаграммы Mermaid
+            document.getElementById('refresh-diagram').addEventListener('click', renderDiagram);
+            document.getElementById('mermaid-input').addEventListener('input', function() {
+                // Автосохранение с небольшой задержкой
+                clearTimeout(this.saveTimeout);
+                this.saveTimeout = setTimeout(() => {
+                    saveToLocalStorage();
+                    renderDiagram();
+                }, 500);
+            });
+            
+            // Примеры диаграмм
+            document.querySelectorAll('[data-example]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const exampleId = this.getAttribute('data-example');
+                    loadMermaidExample(exampleId);
+                });
+            });
+            
+            // Копирование кода диаграммы
+            document.getElementById('copy-diagram-code').addEventListener('click', copyDiagramCode);
+            
+            // JSON валидатор
+            document.getElementById('validate-json').addEventListener('click', validateJSON);
+            document.getElementById('format-json').addEventListener('click', formatJSON);
+            document.getElementById('copy-json').addEventListener('click', copyJSON);
+            
+            // Case converter
+            document.querySelectorAll('[data-case]').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const caseType = this.getAttribute('data-case');
+                    convertCase(caseType);
+                });
+            });
+            
+            document.getElementById('copy-case').addEventListener('click', copyCaseResult);
+            
+            // Чек-листы
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', updateChecklistProgress);
+            });
+            
+            document.getElementById('save-checklist').addEventListener('click', saveChecklists);
+            document.getElementById('clear-checklist').addEventListener('click', clearChecklists);
+            
+            // Импорт/Экспорт
+            document.getElementById('export-all').addEventListener('click', exportAllData);
+            document.getElementById('import-all').addEventListener('click', showImportModal);
+            document.getElementById('confirm-import').addEventListener('click', importData);
+            document.getElementById('cancel-import').addEventListener('click', hideImportModal);
+            
+            // Закрытие модального окна при клике вне его
+            document.getElementById('import-modal').addEventListener('click', function(e) {
+                if (e.target === this) hideImportModal();
+            });
+        }
+
+        // Управление вкладками
+        function showTab(tabId) {
+            // Скрыть все вкладки
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.add('hidden');
+            });
+            
+            // Показать выбранную вкладку
+            document.getElementById(tabId).classList.remove('hidden');
+            
+            // Обновить активную кнопку в навигации
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.getAttribute('data-tab') === tabId) {
+                    btn.classList.add('tab-active');
+                } else {
+                    btn.classList.remove('tab-active');
+                }
+            });
+            
+            // Для вкладки диаграмм - перерендерить
+            if (tabId === 'diagrams') {
+                setTimeout(renderDiagram, 100);
+            }
+            
+            // Сохранить активную вкладку
+            localStorage.setItem('activeTab', tabId);
+        }
+
+        // Шаблоны
+        function loadTemplate(templateId) {
+            const editor = document.getElementById('template-editor');
+            if (templates[templateId]) {
+                editor.value = templates[templateId];
+                saveToLocalStorage();
+                showNotification('Шаблон загружен', 'success');
+            }
+        }
+
+        function loadTemplateEditor() {
+            const savedTemplate = localStorage.getItem('currentTemplate');
+            if (savedTemplate) {
+                document.getElementById('template-editor').value = savedTemplate;
+            }
+            
+            // Автосохранение шаблона
+            document.getElementById('template-editor').addEventListener('input', function() {
+                saveToLocalStorage();
+            });
+        }
+
+        function copyTemplate() {
+            const editor = document.getElementById('template-editor');
+            navigator.clipboard.writeText(editor.value)
+                .then(() => showNotification('Шаблон скопирован в буфер обмена', 'success'))
+                .catch(err => showNotification('Ошибка копирования: ' + err, 'error'));
+        }
+
+        function clearTemplate() {
+            if (confirm('Очистить редактор шаблонов?')) {
+                document.getElementById('template-editor').value = '';
+                saveToLocalStorage();
+                showNotification('Редактор очищен', 'info');
+            }
+        }
+
+        // Диаграммы Mermaid
+        function initializeDiagram() {
+            const savedDiagram = localStorage.getItem('mermaidDiagram');
+            if (savedDiagram) {
+                document.getElementById('mermaid-input').value = savedDiagram;
+            }
+            
+            // Рендеринг начальной диаграммы
+            setTimeout(renderDiagram, 300);
+        }
+
+        function loadMermaidExample(exampleId) {
+            if (mermaidExamples[exampleId]) {
+                document.getElementById('mermaid-input').value = mermaidExamples[exampleId];
+                saveToLocalStorage();
+                renderDiagram();
+                showNotification('Пример загружен', 'success');
+            }
+        }
+
+        function renderDiagram() {
+            const diagramCode = document.getElementById('mermaid-input').value;
+            const outputDiv = document.getElementById('mermaid-output');
+            
+            if (!diagramCode.trim()) {
+                outputDiv.innerHTML = '<p class="text-slate-500 text-center">Диаграмма появится здесь после ввода кода</p>';
+                return;
+            }
+            
+            try {
+                // Очищаем предыдущую диаграмму
+                outputDiv.innerHTML = '';
+                
+                // Создаем контейнер для mermaid
+                const mermaidContainer = document.createElement('div');
+                mermaidContainer.className = 'mermaid';
+                mermaidContainer.textContent = diagramCode;
+                outputDiv.appendChild(mermaidContainer);
+                
+                // Рендерим диаграмму
+                mermaid.init({}, mermaidContainer);
+            } catch (error) {
+                outputDiv.innerHTML = `
+                    <div class="p-4 text-red-400">
+                        <div class="font-bold mb-2">Ошибка рендеринга диаграммы:</div>
+                        <div class="text-sm">${error.message}</div>
+                        <div class="mt-4 text-xs text-slate-500">Проверьте синтаксис Mermaid</div>
+                    </div>
+                `;
+            }
+        }
+
+        function copyDiagramCode() {
+            const diagramCode = document.getElementById('mermaid-input').value;
+            navigator.clipboard.writeText(diagramCode)
+                .then(() => showNotification('Код диаграммы скопирован', 'success'))
+                .catch(err => showNotification('Ошибка копирования: ' + err, 'error'));
+        }
+
+        // JSON валидатор
+        function validateJSON() {
+            const input = document.getElementById('json-input').value;
+            const resultDiv = document.getElementById('json-result');
+            const messageSpan = document.getElementById('json-message');
+            
+            // Сбрасываем стили
+            document.getElementById('json-input').classList.remove('json-error');
+            resultDiv.classList.add('hidden');
+            
+            if (!input.trim()) {
+                showNotification('Введите JSON для проверки', 'warning');
+                return;
+            }
+            
+            try {
+                JSON.parse(input);
+                resultDiv.className = 'mt-4 p-4 rounded-lg bg-green-900/30 border border-green-800/50';
+                messageSpan.textContent = 'JSON корректен!';
+                resultDiv.classList.remove('hidden');
+                showNotification('JSON валиден', 'success');
+            } catch (error) {
+                document.getElementById('json-input').classList.add('json-error');
+                resultDiv.className = 'mt-4 p-4 rounded-lg bg-red-900/30 border border-red-800/50';
+                messageSpan.textContent = `Ошибка в JSON: ${error.message}`;
+                resultDiv.classList.remove('hidden');
+                showNotification('Обнаружена ошибка в JSON', 'error');
+            }
+        }
+
+        function formatJSON() {
+            const input = document.getElementById('json-input');
+            
+            try {
+                const parsed = JSON.parse(input.value);
+                input.value = JSON.stringify(parsed, null, 2);
+                showNotification('JSON отформатирован', 'success');
+            } catch (error) {
+                showNotification('Невозможно форматировать невалидный JSON', 'error');
+            }
+        }
+
+        function copyJSON() {
+            const jsonText = document.getElementById('json-input').value;
+            navigator.clipboard.writeText(jsonText)
+                .then(() => showNotification('JSON скопирован в буфер', 'success'))
+                .catch(err => showNotification('Ошибка копирования: ' + err, 'error'));
+        }
+
+        // Case converter
+        function convertCase(caseType) {
+            const input = document.getElementById('case-input').value.trim();
+            const outputDiv = document.getElementById('case-output');
+            
+            if (!input) {
+                showNotification('Введите текст для преобразования', 'warning');
+                return;
+            }
+            
+            let result = '';
+            
+            switch(caseType) {
+                case 'camel':
+                    result = toCamelCase(input);
+                    break;
+                case 'pascal':
+                    result = toPascalCase(input);
+                    break;
+                case 'snake':
+                    result = toSnakeCase(input);
+                    break;
+                case 'kebab':
+                    result = toKebabCase(input);
+                    break;
+            }
+            
+            outputDiv.textContent = result;
+            outputDiv.setAttribute('data-result', result);
+        }
+
+        function toCamelCase(str) {
+            return str
+                .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
+                .replace(/^[A-Z]/, first => first.toLowerCase());
+        }
+
+        function toPascalCase(str) {
+            return str
+                .replace(/[^a-zA-Z0-9]+(.)/g, (_, chr) => chr.toUpperCase())
+                .replace(/^[a-z]/, first => first.toUpperCase());
+        }
+
+        function toSnakeCase(str) {
+            return str
+                .replace(/([a-z])([A-Z])/g, '$1_$2')
+                .replace(/[^a-zA-Z0-9]+/g, '_')
+                .toLowerCase()
+                .replace(/^_+|_+$/g, '');
+        }
+
+        function toKebabCase(str) {
+            return str
+                .replace(/([a-z])([A-Z])/g, '$1-$2')
+                .replace(/[^a-zA-Z0-9]+/g, '-')
+                .toLowerCase()
+                .replace(/^-+|-+$/g, '');
+        }
+
+        function copyCaseResult() {
+            const result = document.getElementById('case-output').getAttribute('data-result');
+            if (!result) {
+                showNotification('Сначала преобразуйте текст', 'warning');
+                return;
+            }
+            
+            navigator.clipboard.writeText(result)
+                .then(() => showNotification('Результат скопирован', 'success'))
+                .catch(err => showNotification('Ошибка копирования: ' + err, 'error'));
+        }
+
+        // Чек-листы
+        function initializeChecklists() {
+            const savedChecklists = localStorage.getItem('checklists');
+            if (savedChecklists) {
+                try {
+                    const checklists = JSON.parse(savedChecklists);
+                    document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                        const category = checkbox.getAttribute('data-category');
+                        const text = checkbox.parentElement.querySelector('span').textContent;
+                        
+                        if (checklists[category] && checklists[category][text] === true) {
+                            checkbox.checked = true;
+                        }
+                    });
+                    
+                    updateChecklistProgress();
+                } catch (error) {
+                    console.error('Ошибка загрузки чек-листов:', error);
+                }
+            }
+            
+            // Сохранение при изменении
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                checkbox.addEventListener('change', saveChecklists);
+            });
+        }
+
+        function updateChecklistProgress() {
+            const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+            const checked = document.querySelectorAll('input[type="checkbox"]:checked').length;
+            const total = checkboxes.length;
+            const percentage = total > 0 ? Math.round((checked / total) * 100) : 0;
+            
+            document.getElementById('checklist-progress').textContent = `${percentage}%`;
+            document.getElementById('progress-bar').style.width = `${percentage}%`;
+        }
+
+        function saveChecklists() {
+            const checklists = {
+                requirements: {},
+                api: {},
+                ui: {}
+            };
+            
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                const category = checkbox.getAttribute('data-category');
+                const text = checkbox.parentElement.querySelector('span').textContent;
+                checklists[category][text] = checkbox.checked;
+            });
+            
+            localStorage.setItem('checklists', JSON.stringify(checklists));
+            updateChecklistProgress();
+            updateLastSaveTime();
+            showNotification('Чек-листы сохранены', 'success');
+        }
+
+        function clearChecklists() {
+            if (confirm('Очистить все чек-листы? Это действие нельзя отменить.')) {
+                document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                    checkbox.checked = false;
+                });
+                
+                localStorage.removeItem('checklists');
+                updateChecklistProgress();
+                showNotification('Чек-листы очищены', 'info');
+            }
+        }
+
+        // Сохранение и загрузка данных
+        function saveToLocalStorage() {
+            // Сохраняем текущий шаблон
+            localStorage.setItem('currentTemplate', document.getElementById('template-editor').value);
+            
+            // Сохраняем диаграмму Mermaid
+            localStorage.setItem('mermaidDiagram', document.getElementById('mermaid-input').value);
+            
+            // Сохраняем JSON
+            localStorage.setItem('jsonData', document.getElementById('json-input').value);
+            
+            // Сохраняем ввод case converter
+            localStorage.setItem('caseInput', document.getElementById('case-input').value);
+            
+            // Сохраняем активную вкладку
+            const activeTab = document.querySelector('.tab-btn.tab-active')?.getAttribute('data-tab') || 'templates';
+            localStorage.setItem('activeTab', activeTab);
+            
+            updateLastSaveTime();
+        }
+
+        function loadFromLocalStorage() {
+            // Загружаем активную вкладку
+            const savedTab = localStorage.getItem('activeTab');
+            if (savedTab) {
+                showTab(savedTab);
+            }
+            
+            // Загружаем JSON
+            const savedJson = localStorage.getItem('jsonData');
+            if (savedJson) {
+                document.getElementById('json-input').value = savedJson;
+            }
+            
+            // Загружаем case converter input
+            const savedCaseInput = localStorage.getItem('caseInput');
+            if (savedCaseInput) {
+                document.getElementById('case-input').value = savedCaseInput;
+            }
+        }
+
+        function updateLastSaveTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('ru-RU', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('last-save').textContent = `Последнее сохранение: ${timeString}`;
+        }
+
+        // Импорт/Экспорт данных
+        function exportAllData() {
+            const data = {
+                version: '1.0',
+                exportDate: new Date().toISOString(),
+                template: document.getElementById('template-editor').value,
+                mermaidDiagram: document.getElementById('mermaid-input').value,
+                jsonData: document.getElementById('json-input').value,
+                caseInput: document.getElementById('case-input').value,
+                checklists: {}
+            };
+            
+            // Собираем чек-листы
+            document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                const category = checkbox.getAttribute('data-category');
+                const text = checkbox.parentElement.querySelector('span').textContent;
+                
+                if (!data.checklists[category]) {
+                    data.checklists[category] = {};
+                }
+                
+                data.checklists[category][text] = checkbox.checked;
+            });
+            
+            const dataStr = JSON.stringify(data, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sa-toolkit-export-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            showNotification('Все данные экспортированы', 'success');
+        }
+
+        function showImportModal() {
+            document.getElementById('import-modal').classList.remove('hidden');
+        }
+
+        function hideImportModal() {
+            document.getElementById('import-modal').classList.add('hidden');
+            document.getElementById('import-file').value = '';
+        }
+
+        function importData() {
+            const fileInput = document.getElementById('import-file');
+            if (!fileInput.files.length) {
+                showNotification('Выберите файл для импорта', 'warning');
+                return;
+            }
+            
+            const file = fileInput.files[0];
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                try {
+                    const data = JSON.parse(e.target.result);
+                    
+                    // Проверяем версию
+                    if (!data.version || data.version !== '1.0') {
+                        showNotification('Неверная версия файла экспорта', 'error');
+                        return;
+                    }
+                    
+                    // Импортируем данные
+                    if (data.template) {
+                        document.getElementById('template-editor').value = data.template;
+                    }
+                    
+                    if (data.mermaidDiagram) {
+                        document.getElementById('mermaid-input').value = data.mermaidDiagram;
+                        renderDiagram();
+                    }
+                    
+                    if (data.jsonData) {
+                        document.getElementById('json-input').value = data.jsonData;
+                    }
+                    
+                    if (data.caseInput) {
+                        document.getElementById('case-input').value = data.caseInput;
+                    }
+                    
+                    if (data.checklists) {
+                        document.querySelectorAll('input[type="checkbox"]').forEach(checkbox => {
+                            const category = checkbox.getAttribute('data-category');
+                            const text = checkbox.parentElement.querySelector('span').textContent;
+                            
+                            if (data.checklists[category] && data.checklists[category][text] === true) {
+                                checkbox.checked = true;
+                            } else {
+                                checkbox.checked = false;
+                            }
+                        });
+                        updateChecklistProgress();
+                    }
+                    
+                    saveToLocalStorage();
+                    hideImportModal();
+                    showNotification('Данные успешно импортированы', 'success');
+                } catch (error) {
+                    showNotification('Ошибка при импорте файла: ' + error.message, 'error');
+                }
+            };
+            
+            reader.readAsText(file);
+        }
+
+        // Уведомления
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notification-text');
+            const notificationIcon = document.getElementById('notification-icon');
+            
+            // Устанавливаем текст
+            notificationText.textContent = message;
+            
+            // Устанавливаем стиль в зависимости от типа
+            let iconName = 'info';
+            let bgColor = 'bg-slate-800';
+            let textColor = 'text-slate-200';
+            let borderColor = 'border-slate-700';
+            
+            switch(type) {
+                case 'success':
+                    iconName = 'check-circle';
+                    bgColor = 'bg-green-900/80';
+                    textColor = 'text-green-100';
+                    borderColor = 'border-green-700';
+                    break;
+                case 'error':
+                    iconName = 'alert-circle';
+                    bgColor = 'bg-red-900/80';
+                    textColor = 'text-red-100';
+                    borderColor = 'border-red-700';
+                    break;
+                case 'warning':
+                    iconName = 'alert-triangle';
+                    bgColor = 'bg-yellow-900/80';
+                    textColor = 'text-yellow-100';
+                    borderColor = 'border-yellow-700';
+                    break;
+                case 'info':
+                    iconName = 'info';
+                    bgColor = 'bg-sky-900/80';
+                    textColor = 'text-sky-100';
+                    borderColor = 'border-sky-700';
+                    break;
+            }
+            
+            // Обновляем иконку
+            notificationIcon.setAttribute('data-lucide', iconName);
+            lucide.createIcons();
+            
+            // Устанавливаем классы
+            notification.className = `fixed bottom-4 right-4 p-4 rounded-lg shadow-lg z-50 max-w-sm ${bgColor} ${textColor} border ${borderColor}`;
+            
+            // Показываем уведомление
+            notification.classList.remove('hidden');
+            
+            // Автоматически скрываем через 5 секунд
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 5000);
+        }
+
+        // Глобальная функция для доступа из консоли (для отладки)
+        window.app = {
+            saveToLocalStorage,
+            loadFromLocalStorage,
+            showNotification,
+            exportAllData,
+            importData: showImportModal
+        };
+    </script>
+</body>
+</html>
